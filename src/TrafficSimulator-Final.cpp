@@ -15,7 +15,7 @@ void createTrafficObjects_Paris(std::vector<std::shared_ptr<Street>> &streets, s
     // Note: You can use the webp format instead of jpeg
     // According to Google - WebP lossless images are 26% smaller in size compared to PNGs. 
     // WebP lossy images are 25-34% smaller than comparable JPEG images at equivalent SSIM quality index. 
-    filename = "../data/paris.jpg";
+    filename = "/Users/ilavaleev/Dev/CppND-Program-a-Concurrent-Traffic-Simulation/data/paris.jpg";
 
     // init traffic objects
     int nIntersections = 9;
@@ -58,7 +58,7 @@ void createTrafficObjects_NYC(std::vector<std::shared_ptr<Street>> &streets, std
 {
     // assign filename of corresponding city map
     // Note: You can use the webp format instead of jpeg
-    filename = "../data/nyc.jpg";
+    filename = "/Users/ilavaleev/Dev/CppND-Program-a-Concurrent-Traffic-Simulation/data/nyc.jpg";
 
     // init traffic objects
     int nIntersections = 6;
@@ -112,7 +112,7 @@ void createTrafficObjects_NYC(std::vector<std::shared_ptr<Street>> &streets, std
     }
 }
 
-/* Main function */
+// Main function
 int main()
 {
     /* PART 1 : Set up traffic objects */
@@ -122,13 +122,15 @@ int main()
     std::vector<std::shared_ptr<Intersection>> intersections;
     std::vector<std::shared_ptr<Vehicle>> vehicles;
     std::string backgroundImg;
-    int nVehicles = 6;
+
+
+    int nVehicles = 2;
     createTrafficObjects_Paris(streets, intersections, vehicles, backgroundImg, nVehicles);
 
     /* PART 2 : simulate traffic objects */
 
     // simulate intersection
-    std::for_each(intersections.begin(), intersections.end(), [](std::shared_ptr<Intersection> &i) {
+    std::for_each(intersections.begin(), intersections.end(), [](std::shared_ptr<Intersection> &i){
         i->simulate();
     });
 
@@ -157,3 +159,5 @@ int main()
     graphics->setTrafficObjects(trafficObjects);
     graphics->simulate();
 }
+
+

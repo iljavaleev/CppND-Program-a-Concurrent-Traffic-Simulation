@@ -1,11 +1,13 @@
 #ifndef INTERSECTION_H
 #define INTERSECTION_H
 
+
 #include <vector>
 #include <future>
 #include <mutex>
 #include <memory>
 #include "TrafficObject.h"
+#include "TrafficLight.h"
 
 // forward declarations to avoid include cycle
 class Street;
@@ -33,10 +35,10 @@ class Intersection : public TrafficObject
 public:
     // constructor / desctructor
     Intersection();
-
+    
     // getters / setters
     void setIsBlocked(bool isBlocked);
-
+    
     // typical behaviour methods
     void addVehicleToQueue(std::shared_ptr<Vehicle> vehicle);
     void addStreet(std::shared_ptr<Street> street);
@@ -44,16 +46,20 @@ public:
     void simulate();
     void vehicleHasLeft(std::shared_ptr<Vehicle> vehicle);
     bool trafficLightIsGreen();
-
+    
 private:
-
+    
     // typical behaviour methods
     void processVehicleQueue();
-
+    
     // private members
     std::vector<std::shared_ptr<Street>> _streets;   // list of all streets connected to this intersection
     WaitingVehicles _waitingVehicles; // list of all vehicles and their associated promises waiting to enter the intersection
     bool _isBlocked;                  // flag indicating wether the intersection is blocked by a vehicle
+        
+    TrafficLight _trafficLight;
+
 };
+
 
 #endif

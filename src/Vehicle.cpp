@@ -3,6 +3,8 @@
 #include "Street.h"
 #include "Intersection.h"
 #include "Vehicle.h"
+#include <memory>
+#include "TrafficObject.h"
 
 Vehicle::Vehicle()
 {
@@ -24,18 +26,16 @@ void Vehicle::setCurrentDestination(std::shared_ptr<Intersection> destination)
 
 void Vehicle::simulate()
 {
-    // launch drive function in a thread
-    threads.emplace_back(std::thread(&Vehicle::drive, this));
+    threads.emplace_back(std::thread(&Vehicle::drive, get_shared_this()));
 }
 
 // virtual function which is executed in a thread
 void Vehicle::drive()
 {
+    std::unique_lock<std::mutex> lck{TrafficObject::_mtx};
     // print id of the current thread
-    std::unique_lock<std::mutex> lck(_mtx);
-    std::cout << "Vehicle #" << _id << "::drive: thread id = " << std::this_thread::get_id() << std::endl;
+        std::cout << "Vehicle #" << _id << "::drive: thread id = " << std::this_thread::get_id() << std::endl;
     lck.unlock();
-
     // initalize variables
     bool hasEnteredIntersection = false;
     double cycleDuration = 1; // duration of a single simulation cycle in ms
@@ -77,10 +77,10 @@ void Vehicle::drive()
             if (completion >= 0.9 && !hasEnteredIntersection)
             {
                 // request entry to the current intersection (using async)
-                auto ftrEntryGranted = std::async(&Intersection::addVehicleToQueue, _currDestination, get_shared_this());
-
+                //Because split_files is member function you need to pass this on which this function will be called - _currDestination.
+                std::future<void> ftr = std::async(&Intersection::addVehicleToQueue, _currDestination, get_shared_this());
                 // wait until entry has been granted
-                ftrEntryGranted.get();
+                ftr.wait();
 
                 // slow down and set intersection flag
                 _speed /= 10.0;
@@ -98,7 +98,7 @@ void Vehicle::drive()
                     // pick one street at random and query intersection to enter this street
                     std::random_device rd;
                     std::mt19937 eng(rd());
-                    std::uniform_int_distribution<> distr(0, streetOptions.size() - 1);
+                    std::uniform_int_distribution<> distr(0, (int)streetOptions.size() - 1);
                     nextStreet = streetOptions.at(distr(eng));
                 }
                 else
